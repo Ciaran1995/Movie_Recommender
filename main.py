@@ -5,7 +5,8 @@ import random as rand
 from difflib import SequenceMatcher
 
 
-
+# This function creates a new csv file from the existing MovieLens 25M data set
+# that reduces the number of entries based on a minimum number of ratings n.
 def create_new_count_table(n):
     from os.path import exists
 
@@ -25,16 +26,17 @@ def create_new_count_table(n):
     new_movie_count.to_csv('movie_ratings_count_over_' + str(n) + '.csv', index=False)
 
 
+# Choosing the minimum number of ratings a recommended movie can have, and reading in the corresponding csv file to dataframe.    
 min_rating_count = 1000
 movie_ratings_data = pd.read_csv(f'movie_ratings_count_over_' + str(min_rating_count) + '.csv')
 num_ratings_data = movie_ratings_data['title'].value_counts()
 
-#movie_ratings_data = pd.read_csv('movies_100k.csv')
-#num_ratings_data = movie_ratings_data['title'].value_counts()
-
+# New table of all movie ratings for item-based collborative filtering.
 ratings_matrix = movie_ratings_data.pivot_table(index='userId', columns='title', values='rating')
 
 
+# ------------------ GUI Functions ----------------------
+# Function that finds the movie most like the gui entry if it does not exactly match any movie title.
 def most_like(st1, list1):
     likeness = [SequenceMatcher(None, st1, i).ratio() for i in list1]
     max_index = likeness.index(max(likeness))
@@ -44,6 +46,8 @@ def most_like(st1, list1):
     else:
         return "This Movie Doesn't Seem To Be In Our List :("
 
+# This function carries out the item-based collaborative filtering to recommend a movie based on
+# a previously liked movie.
 def recommend():
     warning_label.config(text='')
     if movie_entry.get() in movie_ratings_data['title'].values:
@@ -59,13 +63,8 @@ def recommend():
         # calculated for the entered movie
         recommend_label.config(text='Recommendation: '
                                     + rand.choice((recommendations.drop(index=movie_entry.get())).keys()[0:4]))
+        # Line below would just give the top result
         # recommend_label.config(text='Recommendation: ' + recommendations.keys()[0])
-
-        # Could add a check for if the movie entered only has a small number of ratings, in which case good
-        # recommendations may be difficult. This isn't needed for the refined data sets.
-        if num_ratings_data.loc[movie_entry.get()] < 30:
-            warning_label.config(text='Warning: ' + movie_entry.get()
-                                      + ' may not be enough ratings for a good recommendation')
 
     else:
         recommend_label.config(text='This entry does not match any movie in the database \n Did you mean: '
@@ -80,7 +79,6 @@ win.config(padx=60, pady=10)
 
 app_label2 = tk.Label(win, text="🎥 Please Enter a Movie You Like 🎥", font=("Ariel", 24))
 app_label2.grid(row=0, column=1)
-
 
 blank_label = tk.Label(win, text=" ")
 blank_label.grid(row=1, column=1)
