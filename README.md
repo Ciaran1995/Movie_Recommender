@@ -1,3 +1,3 @@
 # Recommender_Systems
-Collection of projects using recommender system methods ||
+Movie recommender using item-based collaborative filtering ||
 NB: main.py needs the movie rating data from MovieLens website.
